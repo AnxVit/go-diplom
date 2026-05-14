@@ -41,7 +41,7 @@ func parseFlag(opt *Options) {
 	})
 
 	flag.StringVar(&opt.DatabaseDSN, "d", "", "database dsn")
-	flag.StringVar(&opt.ConfigPath, "config_path", "Path of config", "The path of config file")
+	flag.StringVar(&opt.ConfigPath, "config_path", "", "The path of config file")
 
 	flag.Parse()
 

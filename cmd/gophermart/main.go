@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	golog "log"
 	"net/http"
@@ -93,15 +92,8 @@ func initConfig() *config.Config {
 	}
 
 	if err != nil {
-		golog.Fatalf("Could not get config: %v", err)
+		golog.Printf("Could not get config %s: %v\n", opt.ConfigPath, err)
 	}
-
-	cfgStr, err := json.MarshalIndent(cfg, " ", " ")
-	if err != nil {
-		golog.Fatal(err)
-	}
-
-	golog.Println(string(cfgStr))
 
 	return cfg
 }
