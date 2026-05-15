@@ -5,6 +5,11 @@ import (
 	"fmt"
 	golog "log"
 	"net/http"
+	"os"
+	"os/signal"
+	"sync"
+	"syscall"
+	"time"
 
 	"go.uber.org/zap"
 
@@ -29,6 +34,7 @@ func main() {
 	logger.Initialize(cfg.LogLevel)
 
 	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	migrations.Migrate(cfg.DatabaseDSN, commandUp, []string{})
 
@@ -47,23 +53,51 @@ func main() {
 
 	logger.Log.Info(fmt.Sprintf("Listen %s", cfg.Addr))
 
-	err := http.ListenAndServe(cfg.Addr, handler)
-	if err != nil {
-		logger.Log.Warn(fmt.Sprintf("Listen address: %v", ""), zap.Error(err))
+	httpServer := &http.Server{
+		Addr:    cfg.Addr,
+		Handler: handler,
 	}
+
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if err := httpServer.ListenAndServe(); err != nil {
+			logger.Log.Warn(fmt.Sprintf("Listen address: %v", ""), zap.Error(err))
+		}
+	}()
 
 	if cfg.Worker.Enabled {
-		workerAccural := worker.NewWorker(ctx, &cfg.Worker, pool.Pool())
-		workerDone := make(chan struct{})
+		wg.Add(1)
 		go func() {
-			workerAccural.StartWork(ctx)
-			workerDone <- struct{}{}
-		}()
+			defer wg.Done()
+			workerAccural := worker.NewWorker(ctx, &cfg.Worker, pool.Pool())
+			workerDone := make(chan struct{})
+			go func() {
+				workerAccural.StartWork(ctx)
+				workerDone <- struct{}{}
+			}()
 
-		cancel()
-		workerAccural.Stop()
-		<-workerDone
+			<-workerDone
+			workerAccural.Stop()
+		}()
 	}
+
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+	<-sigChan
+
+	cancel()
+
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer shutdownCancel()
+
+	if err := httpServer.Shutdown(shutdownCtx); err != nil {
+		logger.Log.Error("HTTP server shutdown error", zap.Error(err))
+	}
+
+	wg.Wait()
 }
 
 // Инициализация конфига, если конига нет, берутся дефолтные параметры
