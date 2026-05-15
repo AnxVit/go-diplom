@@ -15,9 +15,9 @@ import (
 	"github.com/AnxVit/go-musthave-diploma-tpl/internal/service"
 )
 
-var _ iService = &service.Service{}
+var _ Market = &service.Service{}
 
-type iService interface {
+type Market interface {
 	Register(ctx context.Context, reg *model.LoginPassword) (string, error)
 	Login(ctx context.Context, reg *model.LoginPassword) (string, error)
 
@@ -32,10 +32,10 @@ type Handler struct {
 	cfg *Config
 	chi.Router
 
-	service iService
+	service Market
 }
 
-func NewHandler(cfg *Config, service iService) *Handler {
+func NewHandler(cfg *Config, service Market) *Handler {
 	h := &Handler{
 		cfg:     cfg,
 		service: service,
@@ -43,6 +43,7 @@ func NewHandler(cfg *Config, service iService) *Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(chimiddleware.StripSlashes)
+	r.Use(middleware.CorsMiddleware)
 	r.Route("/api/user", func(r chi.Router) {
 		r.Post("/register", interceptError(h.handleRegister))
 		r.Post("/login", interceptError(h.handleLogin))
@@ -75,10 +76,6 @@ func interceptError(hander func(w http.ResponseWriter, r *http.Request) *errors.
 
 // отправка ответа с соответсвующими полями
 func SendJSONResponse(w http.ResponseWriter, message interface{}, code int) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.WriteHeader(code)
 	_ = json.NewEncoder(w).Encode(message)
 }
