@@ -1,8 +1,8 @@
-// Алгорит Moon для проверки номера счета
+// Алгорит Luhn для проверки номера счета
 
 package utils
 
-func MoonAlgorithm(order string) bool {
+func LuhnAlgorithm(order string) bool {
 	if order == "" {
 		return false
 	}

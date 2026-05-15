@@ -59,7 +59,7 @@ func TestMoonAlgorithm(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.order, func(t *testing.T) {
-			got := MoonAlgorithm(tt.order)
+			got := LuhnAlgorithm(tt.order)
 			if got != tt.want {
 				t.Errorf("MoonAlgorithm(%q) = %v, want %v", tt.order, got, tt.want)
 			}

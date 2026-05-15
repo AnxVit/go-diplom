@@ -79,7 +79,7 @@ func (s *Service) Login(ctx context.Context, reg *model.LoginPassword) (string, 
 }
 
 func (s *Service) ConfirmOrder(ctx context.Context, order string) (bool, error) {
-	if !utils.MoonAlgorithm(order) {
+	if !utils.LuhnAlgorithm(order) {
 		return false, model.ErrorWrongOrders
 	}
 
@@ -107,7 +107,7 @@ func (s *Service) GetBalance(ctx context.Context) (model.Balance, error) {
 }
 
 func (s *Service) Withdrawn(ctx context.Context, req *model.BalanceWithdraw) error {
-	if !utils.MoonAlgorithm(req.Order) {
+	if !utils.LuhnAlgorithm(req.Order) {
 		return model.ErrorWrongOrders
 	}
 
