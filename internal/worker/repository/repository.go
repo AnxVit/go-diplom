@@ -72,7 +72,7 @@ func (r *Repository) UpdateStatus(ctx context.Context, orders []model.AccuralRes
 		} else {
 			query = `UPDATE orders
 					SET 
-						status = $2
+						status = $2,
 						accrual = $3
                     WHERE order_number = $1`
 			args = []interface{}{order.Order, order.Status, *order.Accrual}
