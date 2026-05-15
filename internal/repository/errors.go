@@ -1,15 +1,15 @@
 package repository
 
 import (
-	"fmt"
+	"errors"
 )
 
 var (
-	ErrorLoginAlreadyExists = fmt.Errorf("login already exists")
-	ErrorNoUser             = fmt.Errorf("user not exists")
+	ErrorLoginAlreadyExists = errors.New("login already exists")
+	ErrorNoUser             = errors.New("user not exists")
 
-	ErrorOrderAlreadyExists = fmt.Errorf("order already exists")
-	ErrorOrderConflict      = fmt.Errorf("order already register")
+	ErrorOrderAlreadyExists = errors.New("order already exists")
+	ErrorOrderConflict      = errors.New("order already register")
 
-	ErrorInsufficientBalance = fmt.Errorf("insufficient balance")
+	ErrorInsufficientBalance = errors.New("insufficient balance")
 )

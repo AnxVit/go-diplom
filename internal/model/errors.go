@@ -1,15 +1,17 @@
 package model
 
-import "fmt"
+import (
+	"errors"
+)
 
 var (
-	ErrorUnverifiedAccount = fmt.Errorf("login unverified")
-	ErrorUserAlreadyExists = fmt.Errorf("user already exists")
-	ErrorNoUser            = fmt.Errorf("user doesn't exists")
+	ErrorUnverifiedAccount = errors.New("login unverified")
+	ErrorUserAlreadyExists = errors.New("user already exists")
+	ErrorNoUser            = errors.New("user doesn't exists")
 
-	ErrorWrongOrders        = fmt.Errorf("invalid order")
-	ErrorOrderAlreadyExists = fmt.Errorf("order already exists")
-	ErrorOrderConflict      = fmt.Errorf("order already register")
+	ErrorWrongOrders        = errors.New("invalid order")
+	ErrorOrderAlreadyExists = errors.New("order already exists")
+	ErrorOrderConflict      = errors.New("order already register")
 
-	ErrorInsufficientBalance = fmt.Errorf("insufficient balance")
+	ErrorInsufficientBalance = errors.New("insufficient balance")
 )

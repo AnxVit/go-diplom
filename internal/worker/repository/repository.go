@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	"github.com/AnxVit/go-musthave-diploma-tpl/internal/logger"
 	"github.com/AnxVit/go-musthave-diploma-tpl/internal/model"
@@ -116,7 +116,7 @@ func (r *Repository) GetNewUnregisteredOrders(ctx context.Context) ([]string, er
 
 func (r *Repository) RegisterOrders(ctx context.Context, orders []string) error {
 	if len(orders) == 0 {
-		return fmt.Errorf("empty orders list")
+		return errors.New("empty orders list")
 	}
 	cmdTag, err := r.pool.Exec(ctx, `
 		UPDATE orders
@@ -128,7 +128,7 @@ func (r *Repository) RegisterOrders(ctx context.Context, orders []string) error 
 	}
 
 	if cmdTag.RowsAffected() == 0 {
-		return fmt.Errorf("no orders update")
+		return errors.New("no orders update")
 	}
 
 	return nil
